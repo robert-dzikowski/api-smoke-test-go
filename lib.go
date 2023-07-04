@@ -1,27 +1,26 @@
 package main
 
 import (
-	//"context"
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
 func run(args argStruct) {
 	ctx := context.Background()
-	loader := &openapi3.Loader{} //{Context: ctx}
-	doc, err := loader.LoadFromFile("myfile.yml")
-	if err != nil {
-		panic(err)
-	}
+	loader := &openapi3.Loader{Context: ctx}
+	doc, err := loader.LoadFromFile(*args.oasFile)
+	check(err)
 
 	// Validate document
-	err = doc.Validate(ctx)
-	if err != nil {
-		panic(err)
+	if *args.validate {
+		err = doc.Validate(ctx)
+		check(err)
 	}
-	fmt.Println(doc.Info.Title)
+
+	fmt.Println("Title:", doc.Info.Title)
 
 	// 2.1 Read and parse OAS file
 	// let data: OpenAPI;
@@ -88,4 +87,10 @@ func run(args argStruct) {
 	// 10. Exit with error if any test returned warning.
 	// if config.WARNING_FAIL and len(maker.warning_requests_list) > 0:
 	//     sys.exit(1)
+}
+
+func check(e error) {
+	if e != nil {
+		log.Fatal(e)
+	}
 }
