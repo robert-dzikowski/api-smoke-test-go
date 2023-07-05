@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/url"
+	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
 )
@@ -11,7 +13,20 @@ import (
 func run(args argStruct) {
 	ctx := context.Background()
 	loader := &openapi3.Loader{Context: ctx}
-	doc, err := loader.LoadFromFile(*args.oasFile)
+
+	// 2.1 Read and parse OAS file
+	// let data: OpenAPI;
+	var doc *openapi3.T
+	var err error
+
+	if strings.HasPrefix(*args.oasFile, "http") {
+		parsedURL, e := url.Parse(*args.oasFile)
+		check(e)
+		doc, err = loader.LoadFromURI(parsedURL)
+	} else {
+		doc, err = loader.LoadFromFile(*args.oasFile)
+	}
+
 	check(err)
 
 	// Validate document
@@ -21,20 +36,6 @@ func run(args argStruct) {
 	}
 
 	fmt.Println("Title:", doc.Info.Title)
-
-	// 2.1 Read and parse OAS file
-	// let data: OpenAPI;
-
-	// if config.spec_file.starts_with("http") {
-	//     // content = utils.get_resource_content_string(spec_file)
-	//     // spec = yaml.safe_load(content)
-	//     data = parse_spec_file(String::from("dummy")); // added this line to satisfy compiler
-	// } else {
-	//     let contents = fs::read_to_string(&config.spec_file).expect(
-	//         format!("Error opening file {}", config.spec_file).as_str(),
-	//     );
-	//     data = parse_spec_file(contents);
-	// }
 
 	// let base_api_url = (&data.servers[0].url).to_string();
 	// println!("Base URL: {:?}", base_api_url);
