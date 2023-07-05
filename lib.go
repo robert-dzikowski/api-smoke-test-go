@@ -11,11 +11,11 @@ import (
 )
 
 func run(args argStruct) {
+	// 2. Parse OAS spec from file or internet
 	ctx := context.Background()
 	loader := &openapi3.Loader{Context: ctx}
 
 	// 2.1 Read and parse OAS file
-	// let data: OpenAPI;
 	var doc *openapi3.T
 	var err error
 
@@ -24,31 +24,29 @@ func run(args argStruct) {
 		check(e)
 		doc, err = loader.LoadFromURI(parsedURL)
 	} else {
-		doc, err = loader.LoadFromFile(*args.oasFile)
+		doc, err = loader.LoadFromFile(*args.oasFile) //("specs/petstore.json") //(*args.oasFile)
 	}
 
 	check(err)
 
-	// Validate document
+	// Validate OAS document
 	if *args.validate {
 		err = doc.Validate(ctx)
 		check(err)
 	}
 
-	fmt.Println("Title:", doc.Info.Title)
+	baseApiUrl := doc.Servers[0].URL
+	fmt.Println("Base URL:", baseApiUrl)
+	fmt.Println("")
+	fmt.Println("Testing", doc.Info.Title)
+	fmt.Println("")
 
-	// let base_api_url = (&data.servers[0].url).to_string();
-	// println!("Base URL: {:?}", base_api_url);
-	// println!("");
-	// println!("Testing {}", data.info.title); //['info']['title'])
-	// println!("");
+	// 3. Create list of GET endpoints
+	endpointsList := getListOfParameterlessGETMethods(doc)
+	myLog(fmt.Sprint("Parmeterless GET endpoints: ", endpointsList))
 
-	// // 3. Create list of GET endpoints.
-	// let endpoints_list = return_list_of_parameterless_get_methods(data);
-	// utilities::my_log(format!("GET endpoints: {:?}", endpoints_list));
-
-	// // endpoints_with_params = return_list_of_get_methods_with_parameters(
-	// //     paths_dict)
+	// endpoints_with_params = return_list_of_get_methods_with_parameters(
+	//     paths_dict)
 
 	// // 4. If endpoints_list list is empty exit.
 	// if endpoints_list.len() == 0 {
@@ -93,5 +91,33 @@ func run(args argStruct) {
 func check(e error) {
 	if e != nil {
 		log.Fatal(e)
+	}
+}
+
+func getListOfParameterlessGETMethods(oasDoc *openapi3.T) []string {
+	result := []string{}
+
+	for path, pathItem := range oasDoc.Paths {
+		// if endpoint_has_get_method(path_item) {
+		//     tmp = path.to_string();
+		//     if !tmp.contains('{') {
+		//         result.push(tmp);
+		//     }
+		// }
+		//fmt.Println(path)
+		for method := range pathItem.Operations() {
+			if method == "GET" && !strings.Contains(path, "{") {
+				result = append(result, path)
+			}
+		}
+	}
+
+	return result
+}
+
+func myLog(msg string) {
+	const DEBUG bool = true
+	if DEBUG {
+		fmt.Println("log:", msg)
 	}
 }
