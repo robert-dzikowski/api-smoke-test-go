@@ -6,6 +6,15 @@ import (
 	"os"
 )
 
+type argStruct struct {
+	oasFile      *string
+	auth         *bool
+	localhost    *bool
+	onlyGet      *bool
+	requestParam *int
+	validate     *bool
+}
+
 func main() {
 	oasFile := flag.String(
 		"oas", "", "Required, url or file name of the OpenAPI v.3 specification file")
@@ -16,6 +25,7 @@ func main() {
 	onlyGet := flag.Bool("only-get", false, "Test only GET requests")
 	requestParam := flag.Int("req-param", 13,
 		"Value used in requests that contain parameters")
+	validate := flag.Bool("validate", false, "Validate OpenAPI v.3 specification file")
 	help := flag.Bool("help", false, "Show help")
 
 	flag.Parse()
@@ -30,17 +40,33 @@ func main() {
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
-	fmt.Println("oas:", *oasFile)
 
-	if *auth {
-		fmt.Println("auth:", *auth)
+	args := argStruct{
+		oasFile,
+		auth,
+		localhost,
+		onlyGet,
+		requestParam,
+		validate,
 	}
-	if *localhost {
-		fmt.Println("localhost:", *localhost)
-	}
-	if *onlyGet {
-		fmt.Println("only-get:", *onlyGet)
-	}
-	fmt.Println("req-param:", *requestParam)
+	printArguments(args)
 
+	run(args)
+}
+
+func printArguments(args argStruct) {
+	fmt.Println("oas:", *args.oasFile)
+	if *args.auth {
+		fmt.Println("auth:", *args.auth)
+	}
+	if *args.localhost {
+		fmt.Println("localhost:", *args.localhost)
+	}
+	if *args.onlyGet {
+		fmt.Println("only-get:", *args.onlyGet)
+	}
+	fmt.Println("req-param:", *args.requestParam)
+	if *args.validate {
+		fmt.Println("validate:", *args.validate)
+	}
 }
