@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/robert-dzikowski/api-smoke-test-go/hrm"
 )
 
 func run(args argStruct) {
@@ -42,31 +44,28 @@ func run(args argStruct) {
 	fmt.Println("")
 
 	// 3. Create list of GET endpoints
-	endpointsList := getListOfParameterlessGETMethods(doc)
+	endpointsList := getListOfParameterlessGETendpoints(doc)
 	myLog(fmt.Sprint("Parmeterless GET endpoints: ", endpointsList))
 
-	// endpoints_with_params = return_list_of_get_methods_with_parameters(
-	//     paths_dict)
+	endpointsWithParams := getListOfGETendpointsWithParams(doc)
+	myLog(fmt.Sprint("GET endpoints: ", endpointsWithParams))
 
-	// // 4. If endpoints_list list is empty exit.
-	// if endpoints_list.len() == 0 {
-	//     println!(
-	//         "Test failed: spec file {} doesn't contain any GET methods.",
-	//         config.spec_file
-	//     );
-	//     process::exit(1);
-	// }
+	// 4. If endpointsList and endpointsWithParams are empty exit
+	if len(endpointsList) == 0 && len(endpointsWithParams) == 0 {
+		fmt.Println(
+			"Test failed: spec file " + *args.oasFile + " doesn't contain any GET endpoints.")
+		os.Exit(1)
+	}
 
-	// // 5. Get auth token
-	// // token = None
-	// // if authorization_is_necessary():
-	// //     token = get_auth_token()
+	// 5. Get auth token
+	// token = None
+	// if authorization_is_necessary():
+	//     token = get_auth_token()
 
-	// // 6. Test parameterless GET endpoints
-	// let hrm_conf = HRM::build(base_api_url);
-	// println!("Testing GET methods");
-
-	// hrm_conf.make_get_requests(endpoints_list);
+	// 6. Test parameterless GET endpoints
+	hrm := hrm.New(baseApiUrl, "")
+	fmt.Println("Testing GET methods")
+	hrm.MakeGETRequests(endpointsList)
 
 	// 7. Test GET endpoints that contain parameters
 	// req_param = get_request_param_arg()
@@ -94,24 +93,29 @@ func check(e error) {
 	}
 }
 
-func getListOfParameterlessGETMethods(oasDoc *openapi3.T) []string {
+func getListOfParameterlessGETendpoints(oasDoc *openapi3.T) []string {
 	result := []string{}
 
 	for path, pathItem := range oasDoc.Paths {
-		// if endpoint_has_get_method(path_item) {
-		//     tmp = path.to_string();
-		//     if !tmp.contains('{') {
-		//         result.push(tmp);
-		//     }
-		// }
-		//fmt.Println(path)
 		for method := range pathItem.Operations() {
 			if method == "GET" && !strings.Contains(path, "{") {
 				result = append(result, path)
 			}
 		}
 	}
+	return result
+}
 
+func getListOfGETendpointsWithParams(oasDoc *openapi3.T) []string {
+	result := []string{}
+
+	for path, pathItem := range oasDoc.Paths {
+		for method := range pathItem.Operations() {
+			if method == "GET" && strings.Contains(path, "{") {
+				result = append(result, path)
+			}
+		}
+	}
 	return result
 }
 
