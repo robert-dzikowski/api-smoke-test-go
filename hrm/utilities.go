@@ -6,8 +6,6 @@ import (
 	"time"
 )
 
-const TIMEOUT = 10.0
-
 func CheckError(e error) {
 	if e != nil {
 		log.Fatal(e)
@@ -55,14 +53,3 @@ func getResource(
 		}
 	}
 }
-
-// func create_408_response(error_msg string) (*http.Response, error) {
-// 	resp := &http.Response{
-// 		StatusCode: http.StatusRequestTimeout,
-// 		Body:       http.NoBody,
-// 	}
-// 	resp.Header = make(http.Header)
-// 	resp.Header.Set("Content-Type", "text/plain")
-// 	resp.Write([]byte(error_msg))
-// 	return resp, fmt.Errorf(error_msg)
-// }

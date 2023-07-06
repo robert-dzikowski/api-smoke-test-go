@@ -57,12 +57,13 @@ func run(args argStruct) {
 	}
 
 	// 5. Get auth token
-	// token = None
-	// if authorization_is_necessary():
-	//     token = get_auth_token()
+	token := ""
+	if *args.auth {
+		token = ""
+	}
 
 	// 6. Test parameterless GET endpoints
-	hrm := hrm.New(baseApiUrl, "")
+	hrm := hrm.New(baseApiUrl, token)
 	fmt.Println("Testing GET methods")
 	hrm.MakeGETRequests(endpointsList)
 
@@ -113,7 +114,7 @@ func getListOfGETendpointsWithParams(oasDoc *openapi3.T) []string {
 }
 
 func myLog(msg string) {
-	const DEBUG bool = true
+	const DEBUG bool = false
 	if DEBUG {
 		fmt.Println("log:", msg)
 	}
