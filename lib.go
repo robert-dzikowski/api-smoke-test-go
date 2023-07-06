@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/url"
 	"os"
 	"strings"
@@ -23,18 +22,18 @@ func run(args argStruct) {
 
 	if strings.HasPrefix(*args.oasFile, "http") {
 		parsedURL, e := url.Parse(*args.oasFile)
-		CheckError(e)
+		hrm.CheckError(e)
 		doc, err = loader.LoadFromURI(parsedURL)
 	} else {
 		doc, err = loader.LoadFromFile(*args.oasFile) //("specs/petstore.json") //(*args.oasFile)
 	}
 
-	CheckError(err)
+	hrm.CheckError(err)
 
 	// Validate OAS document
 	if *args.validate {
 		err = doc.Validate(ctx)
-		CheckError(err)
+		hrm.CheckError(err)
 	}
 
 	baseApiUrl := doc.Servers[0].URL
@@ -117,11 +116,5 @@ func myLog(msg string) {
 	const DEBUG bool = true
 	if DEBUG {
 		fmt.Println("log:", msg)
-	}
-}
-
-func CheckError(e error) {
-	if e != nil {
-		log.Fatal(e)
 	}
 }

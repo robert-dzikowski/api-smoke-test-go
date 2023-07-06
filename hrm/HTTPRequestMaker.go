@@ -29,7 +29,8 @@ func (h HRM) MakeGETRequests(endpoints []string) {
 }
 
 func sendGETRequest(endPoint string) int {
-	replySC := GETResourceStatusCode(endPoint, nil)
+	// fmt.Println(endPoint) // http://petstore.swagger.io/v2/pets
+	replySC := GETResourceStatusCode(endPoint, nil, nil)
 	return replySC
 	//} else {
 	// response = utils.get_resource(
