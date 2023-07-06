@@ -23,18 +23,18 @@ func run(args argStruct) {
 
 	if strings.HasPrefix(*args.oasFile, "http") {
 		parsedURL, e := url.Parse(*args.oasFile)
-		check(e)
+		CheckError(e)
 		doc, err = loader.LoadFromURI(parsedURL)
 	} else {
 		doc, err = loader.LoadFromFile(*args.oasFile) //("specs/petstore.json") //(*args.oasFile)
 	}
 
-	check(err)
+	CheckError(err)
 
 	// Validate OAS document
 	if *args.validate {
 		err = doc.Validate(ctx)
-		check(err)
+		CheckError(err)
 	}
 
 	baseApiUrl := doc.Servers[0].URL
@@ -87,12 +87,6 @@ func run(args argStruct) {
 	//     sys.exit(1)
 }
 
-func check(e error) {
-	if e != nil {
-		log.Fatal(e)
-	}
-}
-
 func getListOfParameterlessGETendpoints(oasDoc *openapi3.T) []string {
 	result := []string{}
 
@@ -123,5 +117,11 @@ func myLog(msg string) {
 	const DEBUG bool = true
 	if DEBUG {
 		fmt.Println("log:", msg)
+	}
+}
+
+func CheckError(e error) {
+	if e != nil {
+		log.Fatal(e)
 	}
 }

@@ -20,25 +20,19 @@ func New(baseApiURL string, authToken string) HRM {
 	return h
 }
 
-func (HRM) MakeGETRequests(endpoints []string) {
+func (h HRM) MakeGETRequests(endpoints []string) {
 	for _, ep := range endpoints {
 		fmt.Println("Requesting GET", ep)
-		// 	let response = self.send_get_request(format!(
-		// 		"{}{}",
-		// 		self.base_api_url, end_point
-		// 	));
-		// 	println!("Status code: {}", response);
+		response := sendGETRequest(h.baseApiUrl + ep)
+		fmt.Println("Status code:", response)
 	}
 }
 
-//     fn send_get_request(&self, end_point: String) -> u16 {
-//         // let response = Result<Response, Error>();
-//         //if self.auth_token.is_none() {
-//         let reply_sc = get_resource_status_code(&end_point, None);
-//         reply_sc
-//         //} else {
-//         // response = utils.get_resource(
-//         //     self._api_url + end_point, headers=self.headers)
-//         //}
-//     }
-// }
+func sendGETRequest(endPoint string) int {
+	replySC := GETResourceStatusCode(endPoint, nil)
+	return replySC
+	//} else {
+	// response = utils.get_resource(
+	//     self._api_url + end_point, headers=self.headers)
+	//}
+}
