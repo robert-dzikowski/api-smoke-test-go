@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/robert-dzikowski/api-smoke-test-go/hrm"
@@ -81,7 +82,7 @@ func run(args argStruct) {
 	//         endpoints_with_params, maker, req_param)
 
 	// 8. Print test results.
-	// print_test_results(maker, spec['info']['title'])
+	printAndSaveTestResults(hrm, doc.Info.Title)
 
 	// 9. Exit with error if any test failed.
 	// Exit with error code is needed by Azure to show test as failed
@@ -117,6 +118,62 @@ func getListOfGETendpointsWithParams(oasDoc *openapi3.T) []string {
 		}
 	}
 	return result
+}
+
+func printAndSaveTestResults(h hrm.HRM, apiTitle string) {
+	now := time.Now()
+	timestamp := now.Format("2006-01-02 15:04:05")
+	fmt.Println("")
+	fmt.Println("Date:", timestamp)
+	fmt.Println(apiTitle)
+	//timestamp = str(datetime.datetime.now()).replace(' ', 'T')
+	resultString := ""
+	header3 := "<system-out><![CDATA["
+
+	if len(h.FailedRequestsList) > 0 {
+		header := `<testsuite errors="1" failures="0" skipped="0" tests="1" timestamp="` + timestamp + `">`
+		header2 := `<testcase status="failed" name="' + api_title + '">`
+		header21 := `<error message="Test failed"></error>`
+		resultString = header + header2 + header21 + header3
+		// TODO:
+		// if len(maker.warning_requests_list) > 0:
+		//     mp.my_print('')
+		//     mp.my_print('REQUESTS WHICH EXCEEDED WARNING TIMEOUT:')
+		//     for r in maker.warning_requests_list:
+		//         mp.my_print(r)
+		//     mp.my_print('')
+		//     if len(maker.failed_requests_list) == 0:
+		//         mp.my_print('*** Test result: Warning ***')
+		// if len(maker.failed_requests_list) > 0:
+		tmp := "FAILED REQUESTS:\n"
+		fmt.Print(tmp)
+		resultString = resultString + tmp
+
+		for _, r := range h.FailedRequestsList {
+			tmp = r + "\n"
+			fmt.Print(tmp)
+			resultString = resultString + tmp
+		}
+		tmp = "\n!!! TEST FAIL !!!\n"
+		fmt.Print(tmp)
+		resultString = resultString + tmp
+	} else {
+		header := `<testsuite errors="0" failures="0" skipped="0" tests="1" timestamp="` + timestamp + `">`
+		header2 := `<testcase status="passed" name="' + api_title + '">`
+		resultString = header + header2 + header3
+		fmt.Println("*** Test Pass ***")
+		resultString = resultString + "*** Test Pass ***\n"
+	}
+	end := "]]></system-out></testcase></testsuite>"
+	resultString = resultString + end
+	filename := strings.Replace(apiTitle, " ", "_", -1) + "_test_results.xml"
+	saveStringToFile(filename, resultString)
+	fmt.Println("")
+	fmt.Println("")
+}
+
+func saveStringToFile(filename string, str string) {
+
 }
 
 func myLog(msg string) {

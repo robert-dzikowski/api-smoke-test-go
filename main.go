@@ -36,7 +36,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	//*oasFile = "specs/petstore.json"
+	//*oasFile = "specs/api.github.com.json"
 	if *oasFile == "" {
 		fmt.Println("\"oas\" argument is required")
 		flag.PrintDefaults()

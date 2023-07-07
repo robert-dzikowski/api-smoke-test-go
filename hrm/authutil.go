@@ -1,15 +1,10 @@
 package hrm
 
-// import (
-// )
-
 import (
 	"fmt"
 	"net/http"
 	"net/url"
 	"time"
-	//"context"
-	//"golang.org/x/oauth2"
 )
 
 func GETProtectedResourceStatusCode(endpoint string, token string) int {
