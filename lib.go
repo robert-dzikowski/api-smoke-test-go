@@ -11,6 +11,8 @@ import (
 	"github.com/robert-dzikowski/api-smoke-test-go/hrm"
 )
 
+const AUTH_TOKEN = "auth_token"
+
 func run(args argStruct) {
 	// 2. Parse OAS spec from file or internet
 	ctx := context.Background()
@@ -59,7 +61,7 @@ func run(args argStruct) {
 	// 5. Get auth token
 	token := ""
 	if *args.auth {
-		token = ""
+		token = os.Getenv(AUTH_TOKEN)
 	}
 
 	// 6. Test parameterless GET endpoints

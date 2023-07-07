@@ -30,6 +30,10 @@ func getProtectedResource(endpoint string, token string) (*http.Response, error)
 	if err != nil {
 		return nil, err
 	}
+	// TODO:
+	// elapsed_time := response.elapsed.total_seconds()
+	// print(' Duration: ' + str(elapsed_time))
+
 	return resp, nil
 }
 
