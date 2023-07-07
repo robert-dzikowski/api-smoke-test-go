@@ -6,7 +6,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-const TIMEOUT = 0.1
+const TIMEOUT = 5.0
 
 // Correct HTTP status codes for GET methods
 var GET_SC = []int{200, 204, 401, 403, 404}
@@ -61,7 +61,7 @@ func (h HRM) sendGETRequest(endPoint string) int {
 	if h.authToken != "" {
 		responseSC = GETProtectedResourceStatusCode(endPoint, h.authToken)
 	} else {
-		responseSC = GETResourceStatusCode(endPoint, nil, nil)
+		responseSC = GETResourceStatusCode(endPoint, nil, nil, 3)
 	}
 	return responseSC
 }

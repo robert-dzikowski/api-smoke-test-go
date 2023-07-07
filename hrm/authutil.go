@@ -6,6 +6,7 @@ package hrm
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 	//"context"
 	//"golang.org/x/oauth2"
@@ -27,6 +28,11 @@ func getProtectedResource(endpoint string, token string) (*http.Response, error)
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", token))
 	resp, err := client.Do(req)
+	if urlErr, ok := err.(*url.Error); ok && urlErr.Timeout() {
+		resp = get408Response()
+		err = nil
+	}
+
 	if err != nil {
 		return nil, err
 	}

@@ -3,6 +3,7 @@ package hrm
 import (
 	"log"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -14,16 +15,26 @@ func CheckError(e error) {
 
 // Send GET request, return status code of reply
 func GETResourceStatusCode(
-	endpoint string, params map[string]string, headers map[string]string) int {
-	resp, err := getResource(endpoint, params, headers)
+	endpoint string, params map[string]string,
+	headers map[string]string, maxTries int) int {
+	resp, err := getResource(endpoint, params, headers, maxTries)
 	CheckError(err)
 	return resp.StatusCode
 }
 
+// GET request without verification.
+// maxtries > 1 is used when getting OAS file from server
 func getResource(
-	endpoint string, params map[string]string,
-	headers map[string]string) (*http.Response, error) {
+	endpoint string,
+	params map[string]string,
+	headers map[string]string,
+	maxTries int) (*http.Response, error) {
 	tries := 0
+
+	// maxtries := 1
+	// if maxTries != 0 {
+	// 	maxtries = maxTries
+	// }
 
 	client := http.Client{
 		Timeout: time.Duration(TIMEOUT * float64(time.Second)),
@@ -48,8 +59,23 @@ func getResource(
 	for {
 		tries += 1
 		resp, err := client.Do(req)
-		if err == nil || tries >= 3 {
+		if err != nil {
+			if urlErr, ok := err.(*url.Error); ok && urlErr.Timeout() {
+				//fmt.Println("Timeout error")
+				if tries >= maxTries {
+					return get408Response(), nil
+				}
+			}
+		}
+		if err == nil || tries >= maxTries {
 			return resp, err
 		}
 	}
+}
+
+func get408Response() *http.Response {
+	result := http.Response{
+		StatusCode: 408,
+	}
+	return &result
 }

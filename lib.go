@@ -27,7 +27,7 @@ func run(args argStruct) {
 		hrm.CheckError(e)
 		doc, err = loader.LoadFromURI(parsedURL)
 	} else {
-		doc, err = loader.LoadFromFile(*args.oasFile) //("specs/petstore.json") //(*args.oasFile)
+		doc, err = loader.LoadFromFile(*args.oasFile)
 	}
 
 	hrm.CheckError(err)
