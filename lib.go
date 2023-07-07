@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/url"
 	"os"
 	"strings"
@@ -11,6 +10,8 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/robert-dzikowski/api-smoke-test-go/hrm"
 )
+
+const AUTH_TOKEN = "auth_token"
 
 func run(args argStruct) {
 	// 2. Parse OAS spec from file or internet
@@ -23,18 +24,18 @@ func run(args argStruct) {
 
 	if strings.HasPrefix(*args.oasFile, "http") {
 		parsedURL, e := url.Parse(*args.oasFile)
-		check(e)
+		hrm.CheckError(e)
 		doc, err = loader.LoadFromURI(parsedURL)
 	} else {
 		doc, err = loader.LoadFromFile(*args.oasFile) //("specs/petstore.json") //(*args.oasFile)
 	}
 
-	check(err)
+	hrm.CheckError(err)
 
 	// Validate OAS document
 	if *args.validate {
 		err = doc.Validate(ctx)
-		check(err)
+		hrm.CheckError(err)
 	}
 
 	baseApiUrl := doc.Servers[0].URL
@@ -58,12 +59,13 @@ func run(args argStruct) {
 	}
 
 	// 5. Get auth token
-	// token = None
-	// if authorization_is_necessary():
-	//     token = get_auth_token()
+	token := ""
+	if *args.auth {
+		token = os.Getenv(AUTH_TOKEN)
+	}
 
 	// 6. Test parameterless GET endpoints
-	hrm := hrm.New(baseApiUrl, "")
+	hrm := hrm.New(baseApiUrl, token)
 	fmt.Println("Testing GET methods")
 	hrm.MakeGETRequests(endpointsList)
 
@@ -85,12 +87,6 @@ func run(args argStruct) {
 	// 10. Exit with error if any test returned warning.
 	// if config.WARNING_FAIL and len(maker.warning_requests_list) > 0:
 	//     sys.exit(1)
-}
-
-func check(e error) {
-	if e != nil {
-		log.Fatal(e)
-	}
 }
 
 func getListOfParameterlessGETendpoints(oasDoc *openapi3.T) []string {
@@ -120,7 +116,7 @@ func getListOfGETendpointsWithParams(oasDoc *openapi3.T) []string {
 }
 
 func myLog(msg string) {
-	const DEBUG bool = true
+	const DEBUG bool = false
 	if DEBUG {
 		fmt.Println("log:", msg)
 	}
