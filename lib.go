@@ -61,7 +61,11 @@ func run(args argStruct) {
 	// 5. Get auth token
 	token := ""
 	if *args.auth {
-		token = os.Getenv(AUTH_TOKEN)
+		t, ok := os.LookupEnv(AUTH_TOKEN)
+		if !ok {
+			fmt.Printf("Error: env. variable %s is not set.", AUTH_TOKEN)
+		}
+		token = t
 	}
 
 	// 6. Test parameterless GET endpoints

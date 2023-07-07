@@ -2,7 +2,10 @@ module github.com/robert-dzikowski/api-smoke-test-go
 
 go 1.20
 
-require github.com/getkin/kin-openapi v0.118.0
+require (
+	github.com/getkin/kin-openapi v0.118.0
+	golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df
+)
 
 require (
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
