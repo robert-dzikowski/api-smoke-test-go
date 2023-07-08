@@ -98,10 +98,12 @@ func run(args argStruct) {
 	printAndSaveTestResults(hrm, doc.Info.Title)
 
 	// 9. Exit with error if any test failed.
-	// Exit with error code is needed by Azure to show test as failed
-	// if len(maker.failed_requests_list) > 0:
-	//     sys.exit(1)
+	// It is needed by Azure to show test as failed.
+	if len(hrm.FailedRequestsList) > 0 {
+		os.Exit(1)
+	}
 
+	// TODO:
 	// 10. Exit with error if any test returned warning.
 	// if config.WARNING_FAIL and len(maker.warning_requests_list) > 0:
 	//     sys.exit(1)
@@ -276,7 +278,7 @@ func saveStringToFile(filename string, str string) {
 }
 
 func myLog(msg string) {
-	const DEBUG bool = true
+	const DEBUG bool = false
 	if DEBUG {
 		fmt.Println("log:", msg)
 		fmt.Println("")
