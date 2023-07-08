@@ -6,8 +6,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-//const POST_SC: (u16, u16, u16, u16, u16, u16) = (200, 201, 202, 204, 400, 404);
-
 type HRM struct {
 	baseApiUrl         string
 	authToken          string
