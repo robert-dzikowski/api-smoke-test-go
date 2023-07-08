@@ -1,47 +1,58 @@
 package hrm
 
-import "fmt"
+import (
+	"fmt"
 
-const TIMEOUT = 10.0
+	"golang.org/x/exp/slices"
+)
+
+const TIMEOUT = 5.0
 
 // Correct HTTP status codes for GET methods
-var GET_CORRECT = [5]int{200, 204, 401, 403, 404}
+var GET_SC = []int{200, 204, 401, 403, 404}
 
 //const POST_SC: (u16, u16, u16, u16, u16, u16) = (200, 201, 202, 204, 400, 404);
 
 type HRM struct {
-	baseApiUrl string
-	authToken  string
+	baseApiUrl         string
+	authToken          string
+	FailedRequestsList []string
 }
 
 func New(baseApiURL string, authToken string) HRM {
 	h := HRM{
 		baseApiURL,
 		authToken,
+		[]string{},
 	}
 	return h
 }
 
-func (h HRM) MakeGETRequests(endpoints []string) {
-	var responseSC int
+func (h *HRM) MakeGETRequests(endpoints []string) {
+	var responseSc int
 	for _, ep := range endpoints {
 		fmt.Println("Requesting GET", ep)
-		responseSC = h.sendGETRequest(h.baseApiUrl + ep)
-		fmt.Println("Status code:", responseSC)
-		// request_succeeded = (status_code in correct_statuses)
-		// if not request_succeeded:
-		// 	self.failed_requests_list.append(
-		// 		http_method.value + ' ' + end_point + ', sc: ' + str(status_code))
-		// 	print('FAIL: ' + end_point +
-		// 		  ' request failed. Status code: ' + str(status_code))
-		// 	print('')
-		// else:
-		// 	if http_method == HttpMethods.GET:
+		responseSc = h.sendGETRequest(h.baseApiUrl + ep)
+		//fmt.Println("Status code:", responseSc)
+		requestSucceeded := slices.Contains(GET_SC, responseSc)
+
+		if !requestSucceeded {
+			h.FailedRequestsList = append(
+				h.FailedRequestsList,
+				fmt.Sprintf("GET %s, sc: %d", ep, responseSc))
+			fmt.Printf(
+				"FAIL: %s request failed. Status code: %d\n", ep, responseSc)
+		}
+		// TODO:
+		// else {
+		// 	if http_method == HttpMethods.GET {
 		// 		self._add_to_warning_list_if_exceeded_warning_timeout(
 		// 			elapsed_time, end_point)
-		// 	else:
+		// 	} else {
 		// 		self._add_to_warning_list_if_exceeded_warning_timeout_post(
 		// 			elapsed_time, end_point, http_method)
+		// 	}
+		// }
 	}
 }
 
@@ -50,7 +61,7 @@ func (h HRM) sendGETRequest(endPoint string) int {
 	if h.authToken != "" {
 		responseSC = GETProtectedResourceStatusCode(endPoint, h.authToken)
 	} else {
-		responseSC = GETResourceStatusCode(endPoint, nil, nil)
+		responseSC = GETResourceStatusCode(endPoint, nil, nil, 3)
 	}
 	return responseSC
 }
@@ -58,9 +69,3 @@ func (h HRM) sendGETRequest(endPoint string) int {
 // def _add_to_warning_list_if_exceeded_warning_timeout(self, elapsed_time, end_point):
 // 	if elapsed_time > config.WARNING_TIMEOUT:
 // 		self.warning_requests_list.append('GET ' + end_point)
-
-// def _add_to_warning_list_if_exceeded_warning_timeout_post(
-// 		self, elapsed_time, end_point, http_method):
-// 	if elapsed_time > config.WARNING_TIMEOUT_POST:
-// 		self.warning_requests_list.append(
-// 		http_method.value + ' ' + end_point)
