@@ -1,0 +1,2 @@
+// Correct HTTP status codes for GET methods
+GET Status Codes: 200, 204, 401, 403, 404

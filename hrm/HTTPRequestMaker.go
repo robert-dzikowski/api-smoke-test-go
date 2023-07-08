@@ -16,13 +16,15 @@ var GET_SC = []int{200, 204, 401, 403, 404}
 type HRM struct {
 	baseApiUrl         string
 	authToken          string
+	GetSC              []int
 	FailedRequestsList []string
 }
 
-func New(baseApiURL string, authToken string) HRM {
+func New(baseApiURL string, authToken string, getStatusCodes []int) HRM {
 	h := HRM{
 		baseApiURL,
 		authToken,
+		getStatusCodes,
 		[]string{},
 	}
 	return h
@@ -34,7 +36,7 @@ func (h *HRM) MakeGETRequests(endpoints []string) {
 		fmt.Println("Requesting GET", ep)
 		responseSc = h.sendGETRequest(h.baseApiUrl + ep)
 		//fmt.Println("Status code:", responseSc)
-		requestSucceeded := slices.Contains(GET_SC, responseSc)
+		requestSucceeded := slices.Contains(h.GetSC, responseSc)
 
 		if !requestSucceeded {
 			h.FailedRequestsList = append(

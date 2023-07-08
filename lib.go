@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"log"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -13,6 +16,7 @@ import (
 )
 
 const AUTH_TOKEN = "auth_token"
+const SC_FLE = "status_codes.txt"
 
 func run(args argStruct) {
 	// 2. Parse OAS spec from file or internet
@@ -70,7 +74,11 @@ func run(args argStruct) {
 	}
 
 	// 6. Test parameterless GET endpoints
-	hrm := hrm.New(baseApiUrl, token)
+	// GET corect status codes from file
+	lines := getFileLines(SC_FLE)
+	sc := getCorrectGETSC(lines)
+
+	hrm := hrm.New(baseApiUrl, token, sc)
 	fmt.Println("Testing GET methods")
 	hrm.MakeGETRequests(endpointsList)
 
@@ -92,7 +100,7 @@ func run(args argStruct) {
 	// 10. Exit with error if any test returned warning.
 	// if config.WARNING_FAIL and len(maker.warning_requests_list) > 0:
 	//     sys.exit(1)
-}
+} // run()
 
 func getListOfParameterlessGETendpoints(oasDoc *openapi3.T) []string {
 	result := []string{}
@@ -117,6 +125,54 @@ func getListOfGETendpointsWithParams(oasDoc *openapi3.T) []string {
 			}
 		}
 	}
+	return result
+}
+
+func getFileLines(filename string) []string {
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var lines []string
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	return lines
+}
+
+func getCorrectGETSC(lines []string) []int {
+	const GET_SC string = "GET Status Codes"
+	scLine := ""
+
+	for _, line := range lines {
+		if strings.HasPrefix(line, GET_SC) {
+			scLine = line
+			break
+		}
+	}
+	if len(scLine) == 0 {
+		log.Fatalf("String '%s' was not found", GET_SC)
+	}
+
+	index := strings.Index(scLine, ":")
+	if index == -1 {
+		log.Fatalf("':' not found in '%s' line", GET_SC)
+	}
+	scLine = scLine[index+2:]
+	tmpSlice := strings.Split(string(scLine), ", ")
+	var result []int
+
+	for _, sc := range tmpSlice {
+		i, err := strconv.Atoi(sc)
+		if err != nil {
+			log.Fatal(err)
+		}
+		result = append(result, i)
+	}
+
 	return result
 }
 
