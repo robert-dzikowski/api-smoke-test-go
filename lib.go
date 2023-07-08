@@ -16,6 +16,8 @@ import (
 )
 
 const AUTH_TOKEN = "auth_token"
+
+// File containing correct status codes for HTTP GET method
 const SC_FLE = "status_codes.txt"
 
 func run(args argStruct) {
@@ -229,7 +231,18 @@ func printAndSaveTestResults(h hrm.HRM, apiTitle string) {
 }
 
 func saveStringToFile(filename string, str string) {
+	file, err := os.Create(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
 
+	writer := bufio.NewWriter(file)
+	_, err = writer.WriteString(str)
+	if err != nil {
+		log.Fatal(err)
+	}
+	writer.Flush()
 }
 
 func myLog(msg string) {
