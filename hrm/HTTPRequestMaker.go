@@ -6,22 +6,23 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-// Move this to config file
-const TIMEOUT = 5.0
-
 //const POST_SC: (u16, u16, u16, u16, u16, u16) = (200, 201, 202, 204, 400, 404);
 
 type HRM struct {
 	baseApiUrl         string
 	authToken          string
+	Timeout            float64
 	GetSC              []int
 	FailedRequestsList []string
 }
 
-func New(baseApiURL string, authToken string, getStatusCodes []int) HRM {
+func New(
+	baseApiURL string, authToken string,
+	timeout float64, getStatusCodes []int) HRM {
 	h := HRM{
 		baseApiURL,
 		authToken,
+		timeout,
 		getStatusCodes,
 		[]string{},
 	}
@@ -59,9 +60,9 @@ func (h *HRM) MakeGETRequests(endpoints []string) {
 func (h HRM) sendGETRequest(endPoint string) int {
 	var responseSC int
 	if h.authToken != "" {
-		responseSC = GETProtectedResourceStatusCode(endPoint, h.authToken)
+		responseSC = GETProtectedResourceStatusCode(endPoint, h.authToken, h.Timeout)
 	} else {
-		responseSC = GETResourceStatusCode(endPoint, nil, nil, 3)
+		responseSC = GETResourceStatusCode(endPoint, h.Timeout, 3)
 	}
 	return responseSC
 }

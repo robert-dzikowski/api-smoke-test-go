@@ -7,15 +7,17 @@ import (
 	"time"
 )
 
-func GETProtectedResourceStatusCode(endpoint string, token string) int {
-	resp, err := getProtectedResource(endpoint, token)
+func GETProtectedResourceStatusCode(
+	endpoint string, token string, timeout float64) int {
+	resp, err := getProtectedResource(endpoint, token, timeout)
 	CheckError(err)
 	return resp.StatusCode
 }
 
-func getProtectedResource(endpoint string, token string) (*http.Response, error) {
+func getProtectedResource(
+	endpoint string, token string, timeout float64) (*http.Response, error) {
 	client := http.Client{
-		Timeout: time.Duration(TIMEOUT * float64(time.Second)),
+		Timeout: time.Duration(timeout * float64(time.Second)),
 	}
 	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
@@ -28,14 +30,14 @@ func getProtectedResource(endpoint string, token string) (*http.Response, error)
 		err = nil
 	}
 
-	if err != nil {
-		return nil, err
-	}
+	// if err != nil {
+	// 	return nil, err
+	// }
 	// TODO:
 	// elapsed_time := response.elapsed.total_seconds()
 	// print(' Duration: ' + str(elapsed_time))
 
-	return resp, nil
+	return resp, err
 }
 
 // func getProtectedResource(

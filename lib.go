@@ -17,8 +17,8 @@ import (
 
 const AUTH_TOKEN = "auth_token"
 
-// File containing correct status codes for HTTP GET method
-const SC_FLE = "status_codes.txt"
+// File containing configuration parameters
+const CONFIG_FILE = "config.txt"
 
 func run(args argStruct) {
 	// 2. Parse OAS spec from file or internet
@@ -76,11 +76,14 @@ func run(args argStruct) {
 	}
 
 	// 6. Test parameterless GET endpoints
-	// GET corect status codes from file
-	lines := getFileLines(SC_FLE)
+	// Get config paramaters
+	lines := getConfigLines(CONFIG_FILE)
+	timeout := getTimeout(lines)
 	sc := getCorrectGETSC(lines)
+	myLog(fmt.Sprintf("Timeout: %f", timeout))
+	myLog(fmt.Sprintf("SC: %v", sc))
 
-	hrm := hrm.New(baseApiUrl, token, sc)
+	hrm := hrm.New(baseApiUrl, token, timeout, sc)
 	fmt.Println("Testing GET methods")
 	hrm.MakeGETRequests(endpointsList)
 
@@ -130,7 +133,8 @@ func getListOfGETendpointsWithParams(oasDoc *openapi3.T) []string {
 	return result
 }
 
-func getFileLines(filename string) []string {
+// Returns lines containing congiguration values
+func getConfigLines(filename string) []string {
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -139,31 +143,36 @@ func getFileLines(filename string) []string {
 
 	scanner := bufio.NewScanner(file)
 	var lines []string
+	tmp := ""
 	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+		tmp = scanner.Text()
+		if isConfigLine(tmp) {
+			lines = append(lines, tmp)
+		}
 	}
 	return lines
 }
 
-func getCorrectGETSC(lines []string) []int {
-	const GET_SC string = "GET Status Codes"
-	scLine := ""
+func isConfigLine(line string) bool {
+	if strings.HasPrefix(line, "/") { // comment line
+		return false
+	}
+	index := strings.Index(line, ":")
+	return index != -1
+}
 
-	for _, line := range lines {
-		if strings.HasPrefix(line, GET_SC) {
-			scLine = line
-			break
-		}
+func getTimeout(configLines []string) float64 {
+	timeout := getConfigParameter(configLines, "Timeout")
+	timeout = strings.TrimSpace(timeout)
+	result, err := strconv.ParseFloat(timeout, 64)
+	if err != nil {
+		log.Fatal(err)
 	}
-	if len(scLine) == 0 {
-		log.Fatalf("String '%s' was not found", GET_SC)
-	}
+	return result
+}
 
-	index := strings.Index(scLine, ":")
-	if index == -1 {
-		log.Fatalf("':' not found in '%s' line", GET_SC)
-	}
-	scLine = scLine[index+2:]
+func getCorrectGETSC(configLines []string) []int {
+	scLine := getConfigParameter(configLines, "GET Status Codes")
 	tmpSlice := strings.Split(string(scLine), ", ")
 	var result []int
 
@@ -175,6 +184,27 @@ func getCorrectGETSC(lines []string) []int {
 		result = append(result, i)
 	}
 
+	return result
+}
+
+func getConfigParameter(lines []string, paramName string) string {
+	result := ""
+
+	for _, line := range lines {
+		if strings.HasPrefix(line, paramName) {
+			result = line
+			break
+		}
+	}
+	if len(result) == 0 {
+		log.Fatalf("String '%s' was not found", paramName)
+	}
+
+	index := strings.Index(result, ":")
+	if index == -1 {
+		log.Fatalf("':' not found in '%s' line", paramName)
+	}
+	result = result[index+2:]
 	return result
 }
 
@@ -190,7 +220,7 @@ func printAndSaveTestResults(h hrm.HRM, apiTitle string) {
 
 	if len(h.FailedRequestsList) > 0 {
 		header := `<testsuite errors="1" failures="0" skipped="0" tests="1" timestamp="` + timestamp + `">`
-		header2 := `<testcase status="failed" name="' + api_title + '">`
+		header2 := `<testcase status="failed" name="` + apiTitle + `">`
 		header21 := `<error message="Test failed"></error>`
 		resultString = header + header2 + header21 + header3
 		// TODO:
@@ -217,7 +247,7 @@ func printAndSaveTestResults(h hrm.HRM, apiTitle string) {
 		resultString = resultString + tmp
 	} else {
 		header := `<testsuite errors="0" failures="0" skipped="0" tests="1" timestamp="` + timestamp + `">`
-		header2 := `<testcase status="passed" name="' + api_title + '">`
+		header2 := `<testcase status="passed" name="` + apiTitle + `">`
 		resultString = header + header2 + header3
 		fmt.Println("*** Test Pass ***")
 		resultString = resultString + "*** Test Pass ***\n"
@@ -246,8 +276,9 @@ func saveStringToFile(filename string, str string) {
 }
 
 func myLog(msg string) {
-	const DEBUG bool = false
+	const DEBUG bool = true
 	if DEBUG {
 		fmt.Println("log:", msg)
+		fmt.Println("")
 	}
 }
