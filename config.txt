@@ -3,3 +3,6 @@ Timeout: 5.0
 
 // Correct HTTP status codes for GET requests
 GET Status Codes: 200, 204, 401, 403, 404
+
+// Correct HTTP status codes for POST requests
+POST Status Codes: 200, 201, 202, 204, 400, 404

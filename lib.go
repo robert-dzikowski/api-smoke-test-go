@@ -216,7 +216,6 @@ func printAndSaveTestResults(h hrm.HRM, apiTitle string) {
 	fmt.Println("")
 	fmt.Println("Date:", timestamp)
 	fmt.Println(apiTitle)
-	//timestamp = str(datetime.datetime.now()).replace(' ', 'T')
 	resultString := ""
 	header3 := "<system-out><![CDATA["
 
