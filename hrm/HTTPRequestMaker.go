@@ -6,10 +6,8 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+// Move this to config file
 const TIMEOUT = 5.0
-
-// Correct HTTP status codes for GET methods
-var GET_SC = []int{200, 204, 401, 403, 404}
 
 //const POST_SC: (u16, u16, u16, u16, u16, u16) = (200, 201, 202, 204, 400, 404);
 
