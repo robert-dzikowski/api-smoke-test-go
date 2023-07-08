@@ -1,0 +1,5 @@
+// HTTP request timeout in seconds
+Timeout: 5.0
+
+// Correct HTTP status codes for GET requests
+GET Status Codes: 200, 204, 401, 403, 404
