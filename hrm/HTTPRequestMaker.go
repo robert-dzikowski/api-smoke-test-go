@@ -31,12 +31,11 @@ func New(
 func (h *HRM) MakeGETRequests(endpoints []string) {
 	c := make(chan string)
 
-	var responseSc int
 	for _, ep := range endpoints {
 		endPoint := ep
 		go func() {
 			fmt.Println("Requesting GET", endPoint)
-			responseSc = h.sendGETRequest(h.baseApiUrl + endPoint)
+			responseSc := h.sendGETRequest(h.baseApiUrl + endPoint)
 			requestSucceeded := slices.Contains(h.GetSC, responseSc)
 
 			if requestSucceeded {

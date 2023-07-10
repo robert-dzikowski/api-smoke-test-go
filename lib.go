@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -84,15 +85,16 @@ func run(args argStruct) {
 	myLog(fmt.Sprintf("SC: %v", sc))
 
 	hrm := hrm.New(baseApiUrl, token, timeout, sc)
-	fmt.Println("Testing GET methods")
+	fmt.Println("Testing GET endpoints")
 	hrm.MakeGETRequests(endpointsList)
 
 	// 7. Test GET endpoints that contain parameters
-	// req_param = get_request_param_arg()
-	//
-	// if len(endpoints_with_params) > 0:
-	//     call_get_methods_with_parameters(
-	//         endpoints_with_params, maker, req_param)
+	if len(endpointsWithParams) > 0 {
+		newList := replaceParameters(endpointsWithParams, *args.requestParam)
+		fmt.Println("")
+		fmt.Println("Testing GET endpoints containing parameters")
+		hrm.MakeGETRequests(newList)
+	}
 
 	// 8. Print test results.
 	printAndSaveTestResults(hrm, doc.Info.Title)
@@ -274,6 +276,17 @@ func saveStringToFile(filename string, str string) {
 		log.Fatal(err)
 	}
 	writer.Flush()
+}
+
+func replaceParameters(endpointsList []string, replacement int) []string {
+	newList := []string{}
+	replStr := strconv.Itoa(replacement)
+	re := regexp.MustCompile(`{[_a-zA-Z]*}`)
+	for _, el := range endpointsList {
+		el = re.ReplaceAllString(el, replStr)
+		newList = append(newList, el)
+	}
+	return newList
 }
 
 func myLog(msg string) {
