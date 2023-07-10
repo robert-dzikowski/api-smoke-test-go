@@ -85,14 +85,19 @@ func run(args argStruct) {
 	myLog(fmt.Sprintf("SC: %v", sc))
 
 	hrm := hrm.New(baseApiUrl, token, timeout, sc)
-	fmt.Println("Testing GET endpoints")
+	fmt.Println("Testing GET endpoints:")
 	hrm.MakeGETRequests(endpointsList)
 
 	// 7. Test GET endpoints that contain parameters
 	if len(endpointsWithParams) > 0 {
 		newList := replaceParameters(endpointsWithParams, *args.requestParam)
 		fmt.Println("")
-		fmt.Println("Testing GET endpoints containing parameters")
+		fmt.Println("Testing GET endpoints containing parameters:")
+		hrm.MakeGETRequests(newList)
+
+		fmt.Println("")
+		fmt.Println("Testing GET endpoints with non existing values of parameters:")
+		newList = replaceParameters(endpointsWithParams, 13013013)
 		hrm.MakeGETRequests(newList)
 	}
 
