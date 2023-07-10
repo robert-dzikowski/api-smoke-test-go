@@ -135,7 +135,7 @@ func getListOfGETendpointsWithParams(oasDoc *openapi3.T) []string {
 	return result
 }
 
-// Returns lines containing congiguration values
+// Returns lines containing configuration values
 func getConfigLines(filename string) []string {
 	file, err := os.Open(filename)
 	if err != nil {
