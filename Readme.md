@@ -6,9 +6,11 @@ Tests GET requests, if response status code isn't in config.txt file the test wi
 
 `api-smoke-test-go.exe -oas OAS_file [options]`
 
-  -oas Required argument, file name of the OpenAPI v.3 specification file.
+-oas File name of the OpenAPI v.3 specification file.
+  
+Options:
 
-  -auth
+-auth
         Use authentication, i.e. authentication token is used to authorize requests.
         Env. variable `auth_token` must be set, e.g. on Windows run
 
