@@ -22,10 +22,12 @@ Options:
   -req-param 
         Integer used in requests that contain parameters (default 13).
 
+  -single-thread Use single thread for HTTP requests. By default every request is made in separate goroutine.
+  
   -validate
         Validate file given as "oas" argument.
 
-Result of the test will be saved to file named api_title_test_results.xml. The file has JUnit format, for example it can be used in Azure pipeline as a test result.
+Result of the test will is saved to file named api_title_test_results.xml. The file has JUnit format, so it can be used in Azure pipeline as a test result.
 
 # TODO
 Make other HTTP requests, i.e. POST, PUT, PATCH, DELETE.

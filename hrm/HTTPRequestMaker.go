@@ -28,7 +28,15 @@ func New(
 	return h
 }
 
-func (h *HRM) MakeGETRequests(endpoints []string) {
+func (h *HRM) MakeGETRequests(endpoints []string, singleThread bool) {
+	if singleThread {
+		h.makeGETRequestsST(endpoints)
+	} else {
+		h.makeGETRequests(endpoints)
+	}
+}
+
+func (h *HRM) makeGETRequests(endpoints []string) {
 	c := make(chan string)
 
 	for _, ep := range endpoints {
@@ -69,6 +77,24 @@ func (h *HRM) MakeGETRequests(endpoints []string) {
 		}
 	}
 	sort.Strings(h.FailedRequestsList)
+}
+
+// Single thread requests
+func (h *HRM) makeGETRequestsST(endpoints []string) {
+	var responseSc int
+	for _, ep := range endpoints {
+		fmt.Println("Requesting GET", ep)
+		responseSc = h.sendGETRequest(h.baseApiUrl + ep)
+		requestSucceeded := slices.Contains(h.GetSC, responseSc)
+
+		if !requestSucceeded {
+			h.FailedRequestsList = append(
+				h.FailedRequestsList,
+				fmt.Sprintf("GET %s, sc: %d", ep, responseSc))
+			fmt.Printf(
+				"FAIL: %s request failed. Status code: %d\n", ep, responseSc)
+		}
+	}
 }
 
 func (h HRM) sendGETRequest(endPoint string) int {

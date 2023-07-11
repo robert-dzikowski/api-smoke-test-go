@@ -14,19 +14,29 @@ type argStruct struct {
 	onlyGet      *bool
 	requestParam *int
 	validate     *bool
+	singleThread *bool
 }
 
 func main() {
 	oasFile := flag.String(
 		"oas", "", "Required, file name of the OpenAPI v.3 specification file")
+
 	auth := flag.Bool("auth", false,
 		"Use authentication, i.e. authentication token is used to authorize requests")
+
 	localhost := flag.Bool("localhost", false,
 		"Use when testing API that runs on your local machine")
+
 	onlyGet := flag.Bool("only-get", false, "Test only GET requests")
+
 	requestParam := flag.Int("req-param", 13,
 		"Integer used in requests that contain parameters")
+
 	validate := flag.Bool("validate", false, "Validate file given to \"oas\" argument")
+
+	singleThread := flag.Bool("single-thread", false,
+		"Use single thread for HTTP requests.")
+
 	help := flag.Bool("help", false, "Show help")
 
 	flag.Parse()
@@ -50,6 +60,7 @@ func main() {
 		onlyGet,
 		requestParam,
 		validate,
+		singleThread,
 	}
 	printArguments(args)
 
