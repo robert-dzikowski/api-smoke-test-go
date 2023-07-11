@@ -2,6 +2,7 @@ package hrm
 
 import (
 	"fmt"
+	"sort"
 
 	"golang.org/x/exp/slices"
 )
@@ -28,20 +29,24 @@ func New(
 }
 
 func (h *HRM) MakeGETRequests(endpoints []string) {
-	var responseSc int
-	for _, ep := range endpoints {
-		fmt.Println("Requesting GET", ep)
-		responseSc = h.sendGETRequest(h.baseApiUrl + ep)
-		//fmt.Println("Status code:", responseSc)
-		requestSucceeded := slices.Contains(h.GetSC, responseSc)
+	c := make(chan string)
 
-		if !requestSucceeded {
-			h.FailedRequestsList = append(
-				h.FailedRequestsList,
-				fmt.Sprintf("GET %s, sc: %d", ep, responseSc))
-			fmt.Printf(
-				"FAIL: %s request failed. Status code: %d\n", ep, responseSc)
-		}
+	for _, ep := range endpoints {
+		endPoint := ep
+		go func() {
+			fmt.Println("Requesting GET", endPoint)
+			responseSc := h.sendGETRequest(h.baseApiUrl + endPoint)
+			requestSucceeded := slices.Contains(h.GetSC, responseSc)
+
+			if requestSucceeded {
+				c <- ""
+			} else {
+				// ,
+				c <- fmt.Sprintf("GET %s, sc: %d", endPoint, responseSc)
+				fmt.Printf(
+					"FAIL: %s request failed. Status code: %d\n", endPoint, responseSc)
+			}
+		}()
 		// TODO:
 		// else {
 		// 	if http_method == HttpMethods.GET {
@@ -52,7 +57,18 @@ func (h *HRM) MakeGETRequests(endpoints []string) {
 		// 			elapsed_time, end_point, http_method)
 		// 	}
 		// }
+	} //for
+
+	lenEP := len(endpoints)
+	//fmt.Println("len(endpoints):", lenEP)
+
+	for i := 0; i < lenEP; i++ {
+		result := <-c
+		if result != "" {
+			h.FailedRequestsList = append(h.FailedRequestsList, result)
+		}
 	}
+	sort.Strings(h.FailedRequestsList)
 }
 
 func (h HRM) sendGETRequest(endPoint string) int {
