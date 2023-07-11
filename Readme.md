@@ -28,6 +28,8 @@ Options:
 Result of the test will be saved to file named api_title_test_results.xml. The file has JUnit format, for example it can be used in Azure pipeline as a test result.
 
 # TODO
+Make other HTTP requests, i.e. POST, PUT, PATCH, DELETE.
+
 -localhost Use when testing API that runs on your local machine.
 
 -only-get Test only GET requests.
