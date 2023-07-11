@@ -28,7 +28,7 @@ Options:
   -validate
         Validate file given as "oas" argument.
 
-Result of the test will is saved to file named api_title_test_results.xml. The file has JUnit format, so it can be used in Azure pipeline as a test result.
+Result of the test is saved to file named api_title_test_results.xml. The file has JUnit format, so it can be used in Azure pipeline as a test result.
 
 # TODO
 Make other HTTP requests, i.e. POST, PUT, PATCH, DELETE.
