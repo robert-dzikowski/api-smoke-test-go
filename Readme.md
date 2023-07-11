@@ -1,6 +1,6 @@
 # Introduction
-API Smoke test.
-Tests GET endpoints, if resposnse status code isn't in config.txt file test fails.
+API Smoke test for testing APIs that use OpenAPI v.3 specification.
+Tests GET endpoints, if response status code isn't in config.txt file test fails.
 
 # Run
 
