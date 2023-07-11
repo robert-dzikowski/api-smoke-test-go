@@ -89,17 +89,17 @@ func run(args argStruct) {
 	hrm.MakeGETRequests(endpointsList, *args.singleThread)
 
 	// 7. Test GET endpoints that contain parameters
-	// if len(endpointsWithParams) > 0 {
-	// 	newList := replaceParameters(endpointsWithParams, *args.requestParam)
-	// 	fmt.Println("")
-	// 	fmt.Println("Testing GET endpoints containing parameters:")
-	// 	hrm.MakeGETRequests(newList, *args.singleThread)
+	if len(endpointsWithParams) > 0 {
+		newList := replaceParameters(endpointsWithParams, *args.requestParam)
+		fmt.Println("")
+		fmt.Println("Testing GET endpoints containing parameters:")
+		hrm.MakeGETRequests(newList, *args.singleThread)
 
-	// 	fmt.Println("")
-	// 	fmt.Println("Testing GET endpoints with non existing values of parameters:")
-	// 	newList = replaceParameters(endpointsWithParams, 13013013)
-	// 	hrm.MakeGETRequests(newList, *args.singleThread)
-	// }
+		fmt.Println("")
+		fmt.Println("Testing GET endpoints with non existing values of parameters:")
+		newList = replaceParameters(endpointsWithParams, 13013013)
+		hrm.MakeGETRequests(newList, *args.singleThread)
+	}
 
 	// 8. Print test results.
 	printAndSaveTestResults(hrm, doc.Info.Title)

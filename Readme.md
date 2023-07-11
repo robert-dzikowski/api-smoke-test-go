@@ -1,13 +1,13 @@
 # Introduction
-Smoke test for testing APIs that use OpenAPI v.3 specification.
+Smoke test for testing APIs that use OpenAPI 3.0 specification.
 Tests GET requests, if response status code isn't in config.txt file the test will fail.
-Tested with GitHub REST API.
+This prgram was tested with GitHub REST API.
 
 # Run
 
 `api-smoke-test-go.exe -oas OAS_file [options]`
 
--oas File name of the OpenAPI v.3 specification file.
+-oas File name of the OpenAPI 3.0 specification file.
   
 Options:
 
@@ -35,7 +35,7 @@ Make other HTTP requests, i.e. POST, PUT, PATCH, DELETE.
 
 oas argument accepts url of OAS file.
 
-Add oAuth2 authorization. Curremtly only access token is supported, i.e. you have to get your access token manually if tested API uses oAuth2.
+Add oAuth2 authorization. Currently only access token is supported.
 
 -localhost, used when testing API that runs on your local machine.
 

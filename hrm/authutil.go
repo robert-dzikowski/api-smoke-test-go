@@ -30,9 +30,10 @@ func getProtectedResource(
 		err = nil
 	}
 
+	defer resp.Body.Close()
+
 	// if strings.Contains(endpoint, "/albums") {
 	// 	fmt.Println("Endpoint:", endpoint)
-	// 	defer resp.Body.Close()
 
 	// 	body, _ := ioutil.ReadAll(resp.Body)
 	// 	fmt.Println("Response:", string(body))

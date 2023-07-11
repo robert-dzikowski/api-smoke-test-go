@@ -64,6 +64,8 @@ func main() {
 	}
 	printArguments(args)
 
+	//printToken()
+
 	run(args)
 }
 
