@@ -1,6 +1,6 @@
 # Introduction
 Smoke test for testing APIs that use OpenAPI v.3 specification.
-Tests GET endpoints, if response status code isn't in config.txt file test fails.
+Tests GET requests, if response status code isn't in config.txt file the test will fail.
 
 # Run
 
@@ -10,7 +10,7 @@ Tests GET endpoints, if response status code isn't in config.txt file test fails
 
   -auth
         Use authentication, i.e. authentication token is used to authorize requests.
-        Env. variable auth_token must be set, e.g. on Windows run
+        Env. variable `auth_token` must be set, e.g. on Windows run
 
 `set auth_token=your_access_token`
 
@@ -23,7 +23,7 @@ Tests GET endpoints, if response status code isn't in config.txt file test fails
   -validate
         Validate file given as "oas" argument.
 
-Result of the test will be saved to file named api_title__test_results.xml. The file has JUnit format, for example it can be used in Azure pipeline as a test result.
+Result of the test will be saved to file named api_title_test_results.xml. The file has JUnit format, for example it can be used in Azure pipeline as a test result.
 
 # TODO
 -localhost Use when testing API that runs on your local machine.
