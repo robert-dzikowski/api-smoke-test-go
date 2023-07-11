@@ -13,9 +13,13 @@ Options:
 
 -auth
         Use authentication, i.e. authentication token is used to authorize requests.
-        Env. variable `auth_token` must be set, e.g. on Windows run
-
+        Env. variable `auth_token` must be set, 
+        
+on Windows run
 `set auth_token=your_access_token`
+
+on Linux run
+`export auth_token=your_access_token`
 
   -help
         Show help.
