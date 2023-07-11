@@ -34,6 +34,7 @@ func (h *HRM) MakeGETRequests(endpoints []string, singleThread bool) {
 	} else {
 		h.makeGETRequests(endpoints)
 	}
+	sort.Strings(h.FailedRequestsList)
 }
 
 func (h *HRM) makeGETRequests(endpoints []string) {
@@ -76,7 +77,6 @@ func (h *HRM) makeGETRequests(endpoints []string) {
 			h.FailedRequestsList = append(h.FailedRequestsList, result)
 		}
 	}
-	sort.Strings(h.FailedRequestsList)
 }
 
 // Single thread requests

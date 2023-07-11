@@ -1,6 +1,7 @@
 # Introduction
 Smoke test for testing APIs that use OpenAPI v.3 specification.
 Tests GET requests, if response status code isn't in config.txt file the test will fail.
+Tested with GitHub REST API.
 
 # Run
 
@@ -32,8 +33,10 @@ Result of the test will is saved to file named api_title_test_results.xml. The f
 # TODO
 Make other HTTP requests, i.e. POST, PUT, PATCH, DELETE.
 
--localhost Use when testing API that runs on your local machine.
+oas argument accepts url of OAS file.
 
--only-get Test only GET requests.
+Add oAuth2 authorization. Curremtly only access token is supported, i.e. you have to get your access token manually if tested API uses oAuth2.
 
-"oas" accepts url of OAS file.
+-localhost, used when testing API that runs on your local machine.
+
+-only-get, test only GET requests.
