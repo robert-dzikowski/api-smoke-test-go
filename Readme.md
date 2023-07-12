@@ -1,5 +1,5 @@
 # Introduction
-Smoke test for testing APIs that use OpenAPI 3.0 specification.
+Smoke test for APIs that use OpenAPI 3.0 specification.
 Tests GET requests, if response status code isn't in config.txt file the test will fail, but all endpoints will be tested.
 This program was tested with GitHub REST API.
 

@@ -19,15 +19,15 @@ type argStruct struct {
 
 func main() {
 	oasFile := flag.String(
-		"oas", "", "Required, file name of the OpenAPI v.3 specification file")
+		"oas", "", "Required, file name of the OpenAPI 3.0 specification file")
 
 	auth := flag.Bool("auth", false,
 		"Use authentication, i.e. authentication token is used to authorize requests")
 
 	localhost := flag.Bool("localhost", false,
-		"Use when testing API that runs on your local machine")
+		"Not implemented. Use when testing API that runs on your local machine")
 
-	onlyGet := flag.Bool("only-get", false, "Test only GET requests")
+	onlyGet := flag.Bool("only-get", false, "Not implemented. Test only GET requests")
 
 	requestParam := flag.Int("req-param", 13,
 		"Integer used in requests that contain parameters")
