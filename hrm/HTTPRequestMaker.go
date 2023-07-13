@@ -2,6 +2,7 @@ package hrm
 
 import (
 	"fmt"
+	"net/http"
 	"sort"
 
 	"golang.org/x/exp/slices"
@@ -11,7 +12,7 @@ type HRM struct {
 	baseApiUrl         string
 	authToken          string
 	Timeout            float64
-	GetSC              []int
+	ScGet              []int
 	FailedRequestsList []string
 }
 
@@ -44,8 +45,12 @@ func (h *HRM) makeGETRequests(endpoints []string) {
 		endPoint := ep
 		go func() {
 			fmt.Println("Requesting GET", endPoint)
-			responseSc := h.sendGETRequest(h.baseApiUrl + endPoint)
-			requestSucceeded := slices.Contains(h.GetSC, responseSc)
+			response := h.sendGETRequest(h.baseApiUrl + endPoint)
+
+			defer response.Body.Close()
+
+			responseSc := response.StatusCode
+			requestSucceeded := slices.Contains(h.ScGet, responseSc)
 
 			if requestSucceeded {
 				c <- ""
@@ -81,11 +86,16 @@ func (h *HRM) makeGETRequests(endpoints []string) {
 
 // Single thread requests
 func (h *HRM) makeGETRequestsST(endpoints []string) {
+	var response *http.Response
 	var responseSc int
 	for _, ep := range endpoints {
 		fmt.Println("Requesting GET", ep)
-		responseSc = h.sendGETRequest(h.baseApiUrl + ep)
-		requestSucceeded := slices.Contains(h.GetSC, responseSc)
+		response = h.sendGETRequest(h.baseApiUrl + ep)
+
+		defer response.Body.Close()
+
+		responseSc = response.StatusCode
+		requestSucceeded := slices.Contains(h.ScGet, responseSc)
 
 		if !requestSucceeded {
 			h.FailedRequestsList = append(
@@ -97,14 +107,17 @@ func (h *HRM) makeGETRequestsST(endpoints []string) {
 	}
 }
 
-func (h HRM) sendGETRequest(endPoint string) int {
-	var responseSC int
+func (h HRM) sendGETRequest(endPoint string) *http.Response {
+	var response *http.Response
+	var err error
+
 	if h.authToken != "" {
-		responseSC = GETProtectedResourceStatusCode(endPoint, h.authToken, h.Timeout)
+		response, err = GETProtectedResource(endPoint, h.authToken, h.Timeout)
 	} else {
-		responseSC = GETResourceStatusCode(endPoint, h.Timeout, 3)
+		response, err = GETResource(endPoint, h.Timeout, 3)
 	}
-	return responseSC
+	CheckError(err)
+	return response
 }
 
 // def _add_to_warning_list_if_exceeded_warning_timeout(self, elapsed_time, end_point):
