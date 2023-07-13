@@ -2,6 +2,8 @@ package hrm
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"sort"
 
 	"golang.org/x/exp/slices"
@@ -11,7 +13,7 @@ type HRM struct {
 	baseApiUrl         string
 	authToken          string
 	Timeout            float64
-	GetSC              []int
+	ScGet              []int
 	FailedRequestsList []string
 }
 
@@ -44,14 +46,19 @@ func (h *HRM) makeGETRequests(endpoints []string) {
 		endPoint := ep
 		go func() {
 			fmt.Println("Requesting GET", endPoint)
-			responseSc := h.sendGETRequest(h.baseApiUrl + endPoint)
-			requestSucceeded := slices.Contains(h.GetSC, responseSc)
+			response := h.sendGETRequest(h.baseApiUrl + endPoint)
+
+			defer response.Body.Close()
+
+			responseSc := response.StatusCode
+			requestSucceeded := slices.Contains(h.ScGet, responseSc)
 
 			if requestSucceeded {
 				c <- ""
 			} else {
-				// ,
-				c <- fmt.Sprintf("GET %s, sc: %d", endPoint, responseSc)
+				fr := fmt.Sprintf("GET %s, sc: %d\n", endPoint, responseSc)
+				fr = fr + fmt.Sprintf("Response: %s", getResponseBody(response))
+				c <- fr
 				fmt.Printf(
 					"FAIL: %s request failed. Status code: %d\n", endPoint, responseSc)
 			}
@@ -81,30 +88,46 @@ func (h *HRM) makeGETRequests(endpoints []string) {
 
 // Single thread requests
 func (h *HRM) makeGETRequestsST(endpoints []string) {
+	var response *http.Response
 	var responseSc int
+	var fr string
+
 	for _, ep := range endpoints {
 		fmt.Println("Requesting GET", ep)
-		responseSc = h.sendGETRequest(h.baseApiUrl + ep)
-		requestSucceeded := slices.Contains(h.GetSC, responseSc)
+		response = h.sendGETRequest(h.baseApiUrl + ep)
+
+		defer response.Body.Close()
+
+		responseSc = response.StatusCode
+		requestSucceeded := slices.Contains(h.ScGet, responseSc)
 
 		if !requestSucceeded {
-			h.FailedRequestsList = append(
-				h.FailedRequestsList,
-				fmt.Sprintf("GET %s, sc: %d", ep, responseSc))
+			fr = fmt.Sprintf("GET %s, sc: %d\n", ep, responseSc)
+			fr = fr + fmt.Sprintf("Response: %s", getResponseBody(response))
+			h.FailedRequestsList = append(h.FailedRequestsList, fr)
 			fmt.Printf(
 				"FAIL: %s request failed. Status code: %d\n", ep, responseSc)
 		}
 	}
 }
 
-func (h HRM) sendGETRequest(endPoint string) int {
-	var responseSC int
+func (h HRM) sendGETRequest(endPoint string) *http.Response {
+	var response *http.Response
+	var err error
+
 	if h.authToken != "" {
-		responseSC = GETProtectedResourceStatusCode(endPoint, h.authToken, h.Timeout)
+		response, err = GETProtectedResource(endPoint, h.authToken, h.Timeout)
 	} else {
-		responseSC = GETResourceStatusCode(endPoint, h.Timeout, 3)
+		response, err = GETResource(endPoint, h.Timeout, 3)
 	}
-	return responseSC
+	CheckError(err)
+	return response
+}
+
+func getResponseBody(resp *http.Response) string {
+	//body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
+	return string(body)
 }
 
 // def _add_to_warning_list_if_exceeded_warning_timeout(self, elapsed_time, end_point):

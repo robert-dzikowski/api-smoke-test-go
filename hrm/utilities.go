@@ -20,14 +20,14 @@ func GETResourceStatusCode(
 	// params map[string]string,
 	// headers map[string]string,
 	maxTries int) int {
-	resp, err := getResource(endpoint, timeout, maxTries)
+	resp, err := GETResource(endpoint, timeout, maxTries)
 	CheckError(err)
 	return resp.StatusCode
 }
 
 // GET request without verification.
 // maxTries > 1 is used when getting OAS file from server
-func getResource(
+func GETResource(
 	endpoint string,
 	timeout float64,
 	// params map[string]string,
@@ -58,8 +58,6 @@ func getResource(
 	// }
 
 	var resp *http.Response
-
-	defer resp.Body.Close()
 
 	for tries <= maxTries {
 		resp, err = client.Do(req)

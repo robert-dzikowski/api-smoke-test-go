@@ -44,3 +44,6 @@ Add oAuth2 authorization. Currently only access token is supported.
 -localhost, used when testing API that runs on your local machine.
 
 -only-get, test only GET requests.
+
+# P.S.
+Read usability clause in LICENSE file.
