@@ -2,6 +2,7 @@ package hrm
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"sort"
 
@@ -55,8 +56,9 @@ func (h *HRM) makeGETRequests(endpoints []string) {
 			if requestSucceeded {
 				c <- ""
 			} else {
-				// ,
-				c <- fmt.Sprintf("GET %s, sc: %d", endPoint, responseSc)
+				fr := fmt.Sprintf("GET %s, sc: %d\n", endPoint, responseSc)
+				fr = fr + fmt.Sprintf("Response: %s", getResponseBody(response))
+				c <- fr
 				fmt.Printf(
 					"FAIL: %s request failed. Status code: %d\n", endPoint, responseSc)
 			}
@@ -88,6 +90,8 @@ func (h *HRM) makeGETRequests(endpoints []string) {
 func (h *HRM) makeGETRequestsST(endpoints []string) {
 	var response *http.Response
 	var responseSc int
+	var fr string
+
 	for _, ep := range endpoints {
 		fmt.Println("Requesting GET", ep)
 		response = h.sendGETRequest(h.baseApiUrl + ep)
@@ -98,9 +102,9 @@ func (h *HRM) makeGETRequestsST(endpoints []string) {
 		requestSucceeded := slices.Contains(h.ScGet, responseSc)
 
 		if !requestSucceeded {
-			h.FailedRequestsList = append(
-				h.FailedRequestsList,
-				fmt.Sprintf("GET %s, sc: %d", ep, responseSc))
+			fr = fmt.Sprintf("GET %s, sc: %d\n", ep, responseSc)
+			fr = fr + fmt.Sprintf("Response: %s", getResponseBody(response))
+			h.FailedRequestsList = append(h.FailedRequestsList, fr)
 			fmt.Printf(
 				"FAIL: %s request failed. Status code: %d\n", ep, responseSc)
 		}
@@ -118,6 +122,12 @@ func (h HRM) sendGETRequest(endPoint string) *http.Response {
 	}
 	CheckError(err)
 	return response
+}
+
+func getResponseBody(resp *http.Response) string {
+	//body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
+	return string(body)
 }
 
 // def _add_to_warning_list_if_exceeded_warning_timeout(self, elapsed_time, end_point):

@@ -59,8 +59,6 @@ func GETResource(
 
 	var resp *http.Response
 
-	//defer resp.Body.Close()
-
 	for tries <= maxTries {
 		resp, err = client.Do(req)
 		if err == nil {
