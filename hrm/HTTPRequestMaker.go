@@ -125,8 +125,10 @@ func (h HRM) sendGETRequest(endPoint string) *http.Response {
 }
 
 func getResponseBody(resp *http.Response) string {
-	//body, _ := ioutil.ReadAll(resp.Body)
-	body, _ := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		body = []byte{}
+	}
 	return string(body)
 }
 
