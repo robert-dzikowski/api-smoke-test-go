@@ -118,7 +118,7 @@ func (h HRM) sendGETRequest(endPoint string) *http.Response {
 	if h.authToken != "" {
 		response, err = GETProtectedResource(endPoint, h.authToken, h.Timeout)
 	} else {
-		response, err = GETResource(endPoint, h.Timeout, 3)
+		response, err = GETResource(endPoint, h.Timeout, 1)
 	}
 	CheckError(err)
 	return response
