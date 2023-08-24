@@ -25,7 +25,9 @@ func GETProtectedResource(
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", token))
 	resp, err := client.Do(req)
-	if urlErr, ok := err.(*url.Error); ok && urlErr.Timeout() {
+
+	urlErr, ok := err.(*url.Error)
+	if ok && urlErr.Timeout() {
 		resp = get408Response()
 		err = nil
 	}

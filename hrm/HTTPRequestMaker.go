@@ -9,6 +9,8 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+const REQUEST_SUCCEEDED = "Success"
+
 type HRM struct {
 	baseApiUrl         string
 	authToken          string
@@ -45,16 +47,33 @@ func (h *HRM) makeGETRequests(endpoints []string) {
 	for _, ep := range endpoints {
 		endPoint := ep
 		go func() {
-			fmt.Println("Requesting GET", endPoint)
-			response := h.sendGETRequest(h.baseApiUrl + endPoint)
+			response := &http.Response{}
 
-			defer response.Body.Close()
+			defer func() {
+				if response.Body != nil {
+					response.Body.Close()
+				}
+
+				x := recover()
+				if x != nil {
+					fmt.Printf("Run time panic: %v", x)
+					c <- "Request to " + endPoint + " was interrupted by an error"
+					fmt.Println("Error: request to " + endPoint + " was interrupted by an error.")
+				}
+			}()
+
+			// if endPoint == "/pets/13" {
+			// 	panic("Testing defer function.\n")
+			// }
+
+			fmt.Println("Requesting GET", endPoint)
+			response = h.sendGETRequest(h.baseApiUrl + endPoint)
 
 			responseSc := response.StatusCode
 			requestSucceeded := slices.Contains(h.ScGet, responseSc)
 
 			if requestSucceeded {
-				c <- ""
+				c <- REQUEST_SUCCEEDED
 			} else {
 				fr := fmt.Sprintf("GET %s, sc: %d\n", endPoint, responseSc)
 				fr = fr + fmt.Sprintf("Response: %s", getResponseBody(response))
@@ -76,11 +95,10 @@ func (h *HRM) makeGETRequests(endpoints []string) {
 	} //for
 
 	lenEP := len(endpoints)
-	//fmt.Println("len(endpoints):", lenEP)
 
 	for i := 0; i < lenEP; i++ {
 		result := <-c
-		if result != "" {
+		if result != REQUEST_SUCCEEDED {
 			h.FailedRequestsList = append(h.FailedRequestsList, result)
 		}
 	}
@@ -118,7 +136,7 @@ func (h HRM) sendGETRequest(endPoint string) *http.Response {
 	if h.authToken != "" {
 		response, err = GETProtectedResource(endPoint, h.authToken, h.Timeout)
 	} else {
-		response, err = GETResource(endPoint, h.Timeout, 3)
+		response, err = GETResource(endPoint, h.Timeout, 1)
 	}
 	CheckError(err)
 	return response
