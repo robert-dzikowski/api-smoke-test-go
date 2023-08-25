@@ -54,6 +54,8 @@ func (h *HRM) makeGETRequests(endpoints []string) {
 					response.Body.Close()
 				}
 
+				// fmt.Println("Defer call for " + endPoint) // defer runs always
+
 				x := recover()
 				if x != nil {
 					fmt.Printf("Run time panic: %v", x)
