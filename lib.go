@@ -72,6 +72,7 @@ func run(args argStruct) {
 		t, ok := os.LookupEnv(AUTH_TOKEN)
 		if !ok {
 			fmt.Printf("Error: env. variable %s is not set.", AUTH_TOKEN)
+			os.Exit(1)
 		}
 		token = t
 	}
@@ -105,7 +106,7 @@ func run(args argStruct) {
 	printAndSaveTestResults(hrm, doc.Info.Title)
 
 	// 9. Exit with error if any test failed.
-	// It is needed by Azure to show test as failed.
+	// It is needed by Azure pipeline to show test as failed.
 	if len(hrm.FailedRequestsList) > 0 {
 		os.Exit(1)
 	}
