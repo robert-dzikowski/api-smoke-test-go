@@ -85,29 +85,29 @@ func run(args argStruct) {
 	myLog(fmt.Sprintf("Timeout: %f", timeout))
 	myLog(fmt.Sprintf("SC: %v", sc))
 
-	hrm := hrm.New(baseApiUrl, token, timeout, sc)
+	hrmVar := hrm.New(baseApiUrl, token, timeout, sc)
 	fmt.Println("Testing GET endpoints:")
-	hrm.MakeGETRequests(endpointsList, *args.singleThread)
+	hrmVar.MakeGETRequests(endpointsList, *args.singleThread)
 
 	// 7. Test GET endpoints that contain parameters
 	if len(endpointsWithParams) > 0 {
 		newList := replaceParameters(endpointsWithParams, *args.requestParam)
 		fmt.Println("")
 		fmt.Println("Testing GET endpoints containing parameters:")
-		hrm.MakeGETRequests(newList, *args.singleThread)
+		hrmVar.MakeGETRequests(newList, *args.singleThread)
 
 		fmt.Println("")
 		fmt.Println("Testing GET endpoints with non existing values of parameters:")
 		newList = replaceParameters(endpointsWithParams, 13013013)
-		hrm.MakeGETRequests(newList, *args.singleThread)
+		hrmVar.MakeGETRequests(newList, *args.singleThread)
 	}
 
 	// 8. Print test results.
-	printAndSaveTestResults(hrm, doc.Info.Title)
+	printAndSaveTestResults(hrmVar, doc.Info.Title)
 
 	// 9. Exit with error if any test failed.
 	// It is needed by Azure pipeline to show test as failed.
-	if len(hrm.FailedRequestsList) > 0 {
+	if len(hrmVar.FailedRequestsList) > 0 {
 		os.Exit(1)
 	}
 
