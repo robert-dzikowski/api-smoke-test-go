@@ -19,7 +19,7 @@ type HRM struct {
 	FailedRequestsList []string
 }
 
-func New(
+func Init(
 	baseApiURL string, authToken string,
 	timeout float64, getStatusCodes []int) HRM {
 	h := HRM{

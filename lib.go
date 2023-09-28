@@ -85,7 +85,7 @@ func run(args argStruct) {
 	myLog(fmt.Sprintf("Timeout: %f", timeout))
 	myLog(fmt.Sprintf("SC: %v", sc))
 
-	hrmVar := hrm.New(baseApiUrl, token, timeout, sc)
+	hrmVar := hrm.Init(baseApiUrl, token, timeout, sc)
 	fmt.Println("Testing GET endpoints:")
 	hrmVar.MakeGETRequests(endpointsList, *args.singleThread)
 
