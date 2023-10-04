@@ -45,7 +45,9 @@ func (h *HRM) makeGETRequests(endpoints []string) {
 	c := make(chan string)
 
 	for _, ep := range endpoints {
+		// Make a copy of ep because it will be reassigned with each loop
 		endPoint := ep
+
 		go func() {
 			response := &http.Response{}
 
