@@ -15,7 +15,7 @@ type HRM struct {
 	baseApiUrl         string
 	authToken          string
 	Timeout            float64
-	ScGet              []int
+	ScGetList          []int // Expected correct Status Codes for GET requests
 	FailedRequestsList []string
 }
 
@@ -74,7 +74,7 @@ func (h *HRM) makeGETRequests(endpoints []string) {
 			response = h.sendGETRequest(h.baseApiUrl + endPoint)
 
 			responseSc := response.StatusCode
-			requestSucceeded := slices.Contains(h.ScGet, responseSc)
+			requestSucceeded := slices.Contains(h.ScGetList, responseSc)
 
 			if requestSucceeded {
 				c <- REQUEST_SUCCEEDED
@@ -121,7 +121,7 @@ func (h *HRM) makeGETRequestsST(endpoints []string) {
 		defer response.Body.Close()
 
 		responseSc = response.StatusCode
-		requestSucceeded := slices.Contains(h.ScGet, responseSc)
+		requestSucceeded := slices.Contains(h.ScGetList, responseSc)
 
 		if !requestSucceeded {
 			fr = fmt.Sprintf("GET %s, sc: %d\n", ep, responseSc)
